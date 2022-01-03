@@ -9,22 +9,23 @@ from .schemas import FootballerSchema
 class FootballerListCreateView(MethodView):
     def get(self):
         footballers = Footballer.query.all()
-        schema = FootballerSchema(many=True)
-        return jsonify(schema.dump(footballers))
-    
+        schema = FootballerSchema(many=True).dump(footballers)
+        return jsonify(schema)
+
     def post(self):
         data = request.get_json()
-        footballer = Footballer(
-            name=data.get('name'),
-            number=data.get('number')
-        ).save()
         schema = FootballerSchema()
-        return jsonify(schema.dump(footballer)), 201  # Created
+        errors = schema.validate(data)
+
+        if not errors:
+            footballer = Footballer(**data).save()
+            return jsonify(schema.dump(footballer)), 201  # Created
+        return jsonify(errors), 400  # Bad Request
 
 
 class FootballerDeleteView(MethodView):
     def delete(self, id):
-        footballer = Footballer.query.get(id)
+        footballer = Footballer.query.get_or_404(id)
         schema = FootballerSchema()
 
         if footballer.number == 10:
