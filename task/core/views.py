@@ -2,6 +2,7 @@ from flask import jsonify
 from flask import request
 from flask.views import MethodView
 
+from ..exceptions import PermissionDenied
 from .models import Footballer
 from .schemas import FootballerSchema
 
@@ -29,9 +30,9 @@ class FootballerDeleteView(MethodView):
         schema = FootballerSchema()
 
         if footballer.number == 10:
-            return jsonify({
-                'detail': 'You cannot delete the footballer with number 10.'
-            }), 403  # Forbidden
+            raise PermissionDenied(
+                'You cannot delete the footballer with number 10.'
+            )
 
         footballer.delete()
         return jsonify(schema.dump(footballer)), 204  # No Content

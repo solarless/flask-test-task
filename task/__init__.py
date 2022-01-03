@@ -2,6 +2,7 @@ from flask import Flask
 from flask_marshmallow import Marshmallow
 from flask_migrate import Migrate
 
+from . import errors
 from .db import db
 
 
@@ -14,6 +15,7 @@ def create_app():
     app.config.from_object('task.config')
 
     db.init_app(app)
+    errors.init_app(app)
     ma.init_app(app)
     migrate.init_app(app, db)
 
