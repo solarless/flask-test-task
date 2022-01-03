@@ -15,19 +15,20 @@ class FootballerListCreateView(MethodView):
 
     def post(self):
         data = request.get_json()
-        schema = FootballerSchema()
+        footballer = Footballer(**data)
+        schema = FootballerSchema().dump(footballer)
         errors = schema.validate(data)
 
         if not errors:
-            footballer = Footballer(**data).save()
-            return jsonify(schema.dump(footballer)), 201  # Created
+            footballer.save()
+            return jsonify(schema), 201  # Created
         return jsonify(errors), 400  # Bad Request
 
 
 class FootballerDeleteView(MethodView):
     def delete(self, id):
         footballer = Footballer.query.get_or_404(id)
-        schema = FootballerSchema()
+        schema = FootballerSchema().dump(footballer)
 
         if footballer.number == 10:
             raise PermissionDenied(
@@ -35,4 +36,4 @@ class FootballerDeleteView(MethodView):
             )
 
         footballer.delete()
-        return jsonify(schema.dump(footballer)), 204  # No Content
+        return jsonify(schema), 204  # No Content
